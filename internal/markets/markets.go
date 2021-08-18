@@ -1,5 +1,9 @@
 package markets
 
+/*
+TODO: implement search by Distrito, Regiao5, NomeFeira e Bairro
+*/
+
 import "github.com/jinzhu/gorm"
 
 // Service - Struct for farmers market service
@@ -42,4 +46,55 @@ func NewService(db *gorm.DB) *Service {
 	return &Service{
 		DB: db,
 	}
+}
+
+// GetMarket - retrieves market by ID from database
+func (s *Service) GetMarket(ID int) (Market, error) {
+	var market Market
+	if r := s.DB.First(&market, ID); r.Error != nil {
+		return Market{}, r.Error
+	}
+	return market, nil
+}
+
+// PostMarket - insert a new market to the database
+func (s *Service) PostMarket(market Market) (Market, error) {
+	if r := s.DB.Save(&market); r.Error != nil {
+		return Market{}, r.Error
+	}
+	return market, nil
+}
+
+// UpdateMarket - updates a market by ID with new market info
+func (s *Service) UpdateMarket(ID int, newMarket Market) (Market, error) {
+	market, err := s.GetMarket(ID)
+	if err != nil {
+		return Market{}, err
+	}
+
+	if r := s.DB.Model(&market).Updates(newMarket); r.Error != nil {
+		return Market{}, r.Error
+	}
+	return market, nil
+}
+
+// DeleteMarket - deletes a market by ID
+func (s *Service) DeleteMarket(ID int) error {
+	if r := s.DB.Delete(&Market{}, ID); r.Error != nil {
+		return r.Error
+	}
+	return nil
+}
+
+// GetAllMarkets - retrieves all markets from database
+func (s *Service) GetAllMarkets() ([]Market, error) {
+	/*
+		TODO: think about pagination
+	*/
+	var markets []Market
+	if r := s.DB.Find(&markets); r.Error != nil {
+		return markets, r.Error
+	}
+	return markets, nil
+
 }

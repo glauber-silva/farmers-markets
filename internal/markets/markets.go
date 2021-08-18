@@ -67,6 +67,9 @@ func (s *Service) PostMarket(market Market) (Market, error) {
 
 // UpdateMarket - updates a market by ID with new market info
 func (s *Service) UpdateMarket(ID int, newMarket Market) (Market, error) {
+	/*
+		TODO: The field "Registro" must not be updated
+	*/
 	market, err := s.GetMarket(ID)
 	if err != nil {
 		return Market{}, err

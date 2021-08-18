@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//Store pointer to farmers markets service
+// store pointer to farmers markets service
 type Handler struct {
 	Router *mux.Router
 }

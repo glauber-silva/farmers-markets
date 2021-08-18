@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/glauber-silva/farmers-markets/internal/database"
 	transportHTTP "github.com/glauber-silva/farmers-markets/internal/transport/http"
 )
 
@@ -14,6 +15,13 @@ type App struct {
 // Run - set up the application
 func (app *App) Run() error {
 	fmt.Println("Setting up the APP")
+
+	var err error
+	_, err = database.NewDatabase()
+	if err != nil {
+		return err
+	}
+
 	handler := transportHTTP.NewHandler()
 	handler.SetupRoutes()
 	if err := http.ListenAndServe(":8080", handler.Router); err != nil {

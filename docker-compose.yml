@@ -20,11 +20,11 @@ services:
     build: .
     container_name: "farmers-markets-api"
     environment: 
-      DB_USERNAME: "teste"
-      DB_PASSWORD: "teste"
-      DB_NAME: "markets"
-      DB_HOSTNAME: "db"
-      DB_PORT: "5432"
+      PSQL_USERNAME: "teste"
+      PSQL_PASSWORD: "teste"
+      PSQL_DATABASE: "markets"
+      PSQL_HOSTNAME: "db"
+      PSQL_PORT: "5432"
     ports:
       - "8080:8080"
     depends_on: 

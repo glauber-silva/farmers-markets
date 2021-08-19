@@ -23,6 +23,11 @@ func (app *App) Run() error {
 		return err
 	}
 
+	err = database.MigrateDB(db)
+	if err != nil {
+		return err
+	}
+
 	marketService := markets.NewService(db)
 
 	handler := transportHTTP.NewHandler(marketService)

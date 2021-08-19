@@ -1,7 +1,7 @@
 package markets
 
 /*
-TODO: implement a Search resource that uses at least one of the fields: Distrito, Regiao5, NomeFeira e Bairro
+TODO: implement search by Distrito, Regiao5, NomeFeira e Bairro
 */
 
 import "github.com/jinzhu/gorm"

@@ -1,0 +1,1 @@
+This directory has some files necessary to test and run farmers-markets

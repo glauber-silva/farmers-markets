@@ -23,13 +23,13 @@ type Market struct {
 	Codsubpref int
 	Subprefe   string
 	Regiao5    string
-	Reigao8    string
+	Regiao8    string
 	NomeFeira  string
 	Registro   string
 	Logradouro string
 	Numero     string
 	Bairro     string
-	Referência string
+	Referencia string
 }
 
 // MarketService - An interface for the market service

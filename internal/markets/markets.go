@@ -82,7 +82,7 @@ func (s *Service) UpdateMarket(ID int, newMarket Market) (Market, error) {
 }
 
 // DeleteMarket - deletes a market by ID
-func (s *Service) DeleteMarket(ID int) error {
+func (s *Service) DeleteMarket(ID int64) error {
 	if r := s.DB.Delete(&Market{}, ID); r.Error != nil {
 		return r.Error
 	}

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/glauber-silva/farmers-markets/internal/database"
+	"github.com/glauber-silva/farmers-markets/internal/markets"
 	transportHTTP "github.com/glauber-silva/farmers-markets/internal/transport/http"
 )
 
@@ -17,12 +18,14 @@ func (app *App) Run() error {
 	fmt.Println("Setting up the APP")
 
 	var err error
-	_, err = database.NewDatabase()
+	db, err := database.NewDatabase()
 	if err != nil {
 		return err
 	}
 
-	handler := transportHTTP.NewHandler()
+	marketsService := markets.NewService(db)
+
+	handler := transportHTTP.NewHandler(marketsService)
 	handler.SetupRoutes()
 	if err := http.ListenAndServe(":8080", handler.Router); err != nil {
 		fmt.Println("Failed to set up server")

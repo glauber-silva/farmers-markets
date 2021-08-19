@@ -4,7 +4,10 @@ package markets
 TODO: implement search by Distrito, Regiao5, NomeFeira e Bairro
 */
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"time"
+)
 
 // Service - Struct for farmers market service
 type Service struct {
@@ -13,7 +16,7 @@ type Service struct {
 
 // Market - Define market structure
 type Market struct {
-	gorm.Model
+	ID         uint `gorm:"primaryKey;autoIncrement"`
 	Long       int64
 	Lat        int64
 	Setcens    string
@@ -30,6 +33,8 @@ type Market struct {
 	Numero     string
 	Bairro     string
 	Referencia string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 // MarketService - An interface for the market service
@@ -49,7 +54,7 @@ func NewService(db *gorm.DB) *Service {
 }
 
 // GetMarket - retrieves market by ID from database
-func (s *Service) GetMarket(ID int) (Market, error) {
+func (s *Service) GetMarket(ID uint) (Market, error) {
 	var market Market
 	if r := s.DB.First(&market, ID); r.Error != nil {
 		return Market{}, r.Error
@@ -66,7 +71,7 @@ func (s *Service) PostMarket(market Market) (Market, error) {
 }
 
 // UpdateMarket - updates a market by ID with new market info
-func (s *Service) UpdateMarket(ID int, newMarket Market) (Market, error) {
+func (s *Service) UpdateMarket(ID uint, newMarket Market) (Market, error) {
 	/*
 		TODO: The field "Registro" must not be updated
 	*/
@@ -82,7 +87,7 @@ func (s *Service) UpdateMarket(ID int, newMarket Market) (Market, error) {
 }
 
 // DeleteMarket - deletes a market by ID
-func (s *Service) DeleteMarket(ID int64) error {
+func (s *Service) DeleteMarket(ID uint) error {
 	if r := s.DB.Delete(&Market{}, ID); r.Error != nil {
 		return r.Error
 	}

@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"os"
 
 	"github.com/jinzhu/gorm"
@@ -10,7 +11,7 @@ import (
 
 // create a string connection and return a database object
 func NewDatabase() (*gorm.DB, error) {
-	fmt.Println("Set up new database connection")
+	log.Info("Set up new database connection")
 
 	username := os.Getenv("PSQL_USERNAME")
 	passoword := os.Getenv("PSQL_PASSWORD")

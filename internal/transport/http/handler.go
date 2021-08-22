@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 
@@ -29,14 +30,25 @@ func NewHandler(service *markets.Service) *Handler {
 	}
 }
 
+func LoggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		log.WithFields(
+			log.Fields{
+				"Method": r.Method,
+				"Path": r.URL.Path,
+			}).Info("Handled request")
+		next.ServeHTTP(w, r)
+	})
+}
+
 // SetupRoutes - setup up all routes for application
 func (h *Handler) SetupRoutes() {
 	/*
 		TODO: Add Search handler
 	*/
-	fmt.Println("Setting up Routes")
+	log.Info("Setting up Routes")
 	h.Router = mux.NewRouter()
-
+	h.Router.Use(LoggingMiddleware)
 	h.Router.HandleFunc("/api/market", h.GetAllMarkets).Methods("GET")
 	h.Router.HandleFunc("/api/market", h.PostMarket).Methods("POST")
 	h.Router.HandleFunc("/api/market/{id}", h.GetMarket).Methods("GET")

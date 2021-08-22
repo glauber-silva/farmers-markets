@@ -5,6 +5,7 @@ TODO: implement search by Distrito, Regiao5, NomeFeira e Bairro
 */
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -88,8 +89,11 @@ func (s *Service) UpdateMarket(ID uint, newMarket Market) (Market, error) {
 
 // DeleteMarket - deletes a market by ID
 func (s *Service) DeleteMarket(ID uint) error {
+
 	if r := s.DB.Delete(&Market{}, ID); r.Error != nil {
 		return r.Error
+	} else if r.RowsAffected == 0 {
+		return fmt.Errorf("row with id=%d cannot be deleted because it does not exist", ID)
 	}
 	return nil
 }

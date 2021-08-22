@@ -19,6 +19,7 @@ type Handler struct {
 // Response - an struct to store responses from API
 type Response struct {
 	Message string
+	Error string
 }
 
 // NewHandler - returns a pointer to a Handler
@@ -41,11 +42,8 @@ func (h *Handler) SetupRoutes() {
 	h.Router.HandleFunc("/api/market/{id}", h.GetMarket).Methods("GET")
 	h.Router.HandleFunc("/api/market/{id}", h.DeleteMarket).Methods("DELETE")
 	h.Router.HandleFunc("/api/market/{id}", h.UpdateMarket).Methods("PUT")
-
 	h.Router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8" )
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(Response{Message: "Alive"}); err != nil {
+		if err := sendOkResponse(w, Response{Message: "Alive"}); err != nil {
 			panic(err)
 		}
 	})
@@ -53,23 +51,23 @@ func (h *Handler) SetupRoutes() {
 
 // GetMarket Handler - retrieve a market by ID
 func (h *Handler) GetMarket(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8" )
-	w.WriteHeader(http.StatusOK)
 	vars := mux.Vars(r)
 	id := vars["id"]
 
 	i, err := strconv.ParseInt(id, 10, 0)
 	if err != nil {
-		fmt.Fprint(w, "Unable to parse ID")
+		sendErrorResponse(w, "Unable to parse ID", err)
+		return
 	}
 
 	market, err := h.Service.GetMarket(uint(i))
 
 	if err != nil {
-		fmt.Fprintf(w, "Error retrieving market by ID")
+		sendErrorResponse(w, "Error retrieving market by ID", err)
+		return
 	}
 
-	if err := json.NewEncoder(w).Encode(market); err != nil {
+	if err := sendOkResponse(w, market); err != nil {
 		panic(err)
 	}
 }
@@ -81,7 +79,8 @@ func (h *Handler) GetAllMarkets(w http.ResponseWriter, r *http.Request) {
 
 	markets, err := h.Service.GetAllMarkets()
 	if err != nil {
-		fmt.Fprintf(w, "Failed retrieving markets")
+		sendErrorResponse(w, "Failed retrieving markets", err)
+		return
 	}
 	if err := json.NewEncoder(w).Encode(markets); err != nil {
 		panic(err)
@@ -90,31 +89,28 @@ func (h *Handler) GetAllMarkets(w http.ResponseWriter, r *http.Request) {
 
 // PostMarket Handler - Add new market
 func (h *Handler) PostMarket(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8" )
-	w.WriteHeader(http.StatusOK)
-
 	var market markets.Market
 	if err := json.NewDecoder(r.Body).Decode(&market); err != nil {
-		fmt.Fprintf(w, "Failed to decode JSON Body")
+		sendErrorResponse(w, "Failed to decode JSON Body", err)
+		return
 	}
 
 	market, err := h.Service.PostMarket(market)
 	if err != nil {
-		fmt.Fprintf(w, "Failed to post new market")
+		sendErrorResponse(w, "Failed to post new market", err)
+		return
 	}
-	if err := json.NewEncoder(w).Encode(market); err!= nil {
+	if err := sendOkResponse(w, market); err!= nil {
 		panic(err)
 	}
 }
 
 // UpdateMarket Handler - Update a market by ID
 func (h *Handler) UpdateMarket(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8" )
-	w.WriteHeader(http.StatusOK)
-
 	var market markets.Market
 	if err := json.NewDecoder(r.Body).Decode(&market); err != nil {
-		fmt.Fprintf(w, "Failed to decode JSON Body")
+		sendErrorResponse(w, "Failed to decode JSON Body", err)
+		return
 	}
 
 	vars := mux.Vars(r)
@@ -127,39 +123,48 @@ func (h *Handler) UpdateMarket(w http.ResponseWriter, r *http.Request) {
 	market, err = h.Service.UpdateMarket(uint(mktID), market )
 
 	if err != nil {
-		fmt.Fprintf(w, "Failed to update market")
+		sendErrorResponse(w, "Failed to update market", err)
+		return
 	}
 
-	if err := json.NewEncoder(w).Encode(market); err!= nil {
+	if err := sendOkResponse(w, market); err != nil {
 		panic(err)
 	}
 }
 
 // DeleteMarket Handler - Delete a market by ID
 func (h *Handler) DeleteMarket(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8" )
-	w.WriteHeader(http.StatusOK)
-
 	vars := mux.Vars(r)
 	id := vars["id"]
 	mktID, err := strconv.ParseInt(id, 10, 64)
 
 	if err != nil {
-		fmt.Fprint(w, "Unable to parse ID")
+		sendErrorResponse(w, "Unable to parse ID", err)
+		return
 	}
 
 	err = h.Service.DeleteMarket(uint(mktID))
 
 	if err != nil {
-		fmt.Fprintf(w, "Failed to delete market")
+		sendErrorResponse(w, "Failed to delete market", err)
+		return
 	}
 
-	if err := json.NewEncoder(w).Encode(Response{Message: "Market deleted successfully"}); err != nil {
+	if err = sendOkResponse(w, Response{Message: "Market deleted successfully"}); err != nil {
+		panic(err)
+	}
+
+}
+func sendErrorResponse(w http.ResponseWriter, message string, err error) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8" )
+	w.WriteHeader(http.StatusInternalServerError)
+	if err := json.NewEncoder(w).Encode(Response{Message: message, Error: err.Error()}); err != nil {
 		panic(err)
 	}
 }
 
-/*
-	TODO: DRY - remove to a function the lines that write Headers
-	TODO: DRY - think about a best way to trow exception
- */
+func sendOkResponse(w http.ResponseWriter, r interface{}) error {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8" )
+	w.WriteHeader(http.StatusOK)
+	return json.NewEncoder(w).Encode(r)
+}

@@ -46,6 +46,7 @@ $ go run internal/database/seeder/main.go -filename <some_csv_file.csv>
 
 ### Doker
 If you desire run containerized API , in the docker-compose.yml uncomment the api service.
-Then run `docker-compose up --build`
 
-To run seeds : `docker-compose exec api sh -c ./app/seeder -filename=<some_csv_file.csv>`
+Then run `$ docker-compose up --build`
+
+To run seeds : `$ docker-compose exec api sh -c ./app/seeder -filename=<some_csv_file.csv>`

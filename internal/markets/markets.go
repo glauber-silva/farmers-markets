@@ -6,7 +6,8 @@ TODO: implement search by Distrito, Regiao5, NomeFeira e Bairro
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
+	"github.com/pkg/errors"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -17,23 +18,23 @@ type Service struct {
 
 // Market - Define market structure
 type Market struct {
-	ID         uint `gorm:"primaryKey;autoIncrement"`
-	Long       int64
-	Lat        int64
-	Setcens    string
-	Areap      string
-	Coddist    int
-	Distrito   string
-	Codsubpref int
-	Subprefe   string
-	Regiao5    string
-	Regiao8    string
-	NomeFeira  string
-	Registro   string
-	Logradouro string
-	Numero     string
-	Bairro     string
-	Referencia string
+	ID         uint `gorm:"primaryKey;autoIncrement" ,csv:"ID"`
+	Long       int64 `csv:"LONG"`
+	Lat        int64 `csv:"LAT"`
+	Setcens    string `csv:"SETCENS"`
+	Areap      string `csv:"AREAP"`
+	Coddist    int `csv:"CODDIST"`
+	Distrito   string `csv:"DISTRITO"`
+	Codsubpref int `csv:"CODSUBPREF"`
+	Subprefe   string `csv:"SUBPREFE"`
+	Regiao5    string `csv:"REGIAO5"`
+	Regiao8    string `csv:"REGIAO8"`
+	NomeFeira  string `csv:"NOME_FEIRA"`
+	Registro   string `csv:"REGISTRO"`
+	Logradouro string `csv:"LOGRADOURO"`
+	Numero     string `csv:"NUMERO"`
+	Bairro     string `csv:"BAIRRO"`
+	Referencia string `csv:"REFERENCIA"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
@@ -73,17 +74,19 @@ func (s *Service) PostMarket(market Market) (Market, error) {
 
 // UpdateMarket - updates a market by ID with new market info
 func (s *Service) UpdateMarket(ID uint, newMarket Market) (Market, error) {
-	/*
-		TODO: The field "Registro" must not be updated
-	*/
 	market, err := s.GetMarket(ID)
 	if err != nil {
 		return Market{}, err
 	}
 
-	if r := s.DB.Model(&market).Updates(newMarket); r.Error != nil {
-		return Market{}, r.Error
+	if market.Registro == newMarket.Registro{
+		if r := s.DB.Model(&market).Updates(newMarket); r.Error != nil {
+			return Market{}, r.Error
+		}
+	} else {
+		return Market{}, errors.New("Registro must not be updated")
 	}
+
 	return market, nil
 }
 
@@ -100,9 +103,6 @@ func (s *Service) DeleteMarket(ID uint) error {
 
 // GetAllMarkets - retrieves all markets from database
 func (s *Service) GetAllMarkets() ([]Market, error) {
-	/*
-		TODO: think about pagination
-	*/
 	var markets []Market
 	if r := s.DB.Find(&markets); r.Error != nil {
 		return markets, r.Error

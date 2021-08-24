@@ -5,10 +5,11 @@ ADD . /app
 WORKDIR /app
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o app cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o seeder internal/database/seeder/main.go
 
 FROM alpine:latest AS production
-COPY --from=builder /app .
+COPY --from=builder /app /app
 EXPOSE 8080
-CMD ["./app"]
+CMD ["./app/app"]
 
 

@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
@@ -54,6 +53,7 @@ func (h *Handler) SetupRoutes() {
 	h.Router.HandleFunc("/api/market/{id}", h.GetMarket).Methods("GET")
 	h.Router.HandleFunc("/api/market/{id}", h.DeleteMarket).Methods("DELETE")
 	h.Router.HandleFunc("/api/market/{id}", h.UpdateMarket).Methods("PUT")
+	h.Router.HandleFunc("/api/market/search", h.SearchMarket).Methods("GET")
 	h.Router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		if err := sendOkResponse(w, Response{Message: "Alive"}); err != nil {
 			panic(err)
@@ -129,7 +129,7 @@ func (h *Handler) UpdateMarket(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	mktID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		fmt.Fprintf(w, "Failed to parse uint from ID")
+		sendErrorResponse(w, "Failed to parse uint from ID", err)
 	}
 
 	market, err = h.Service.UpdateMarket(uint(mktID), market )
@@ -167,6 +167,12 @@ func (h *Handler) DeleteMarket(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func (h *Handler) SearchMarket(w http.ResponseWriter, r *http.Request){
+	path := r.URL.Query()
+
+}
+
 func sendErrorResponse(w http.ResponseWriter, message string, err error) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8" )
 	w.WriteHeader(http.StatusInternalServerError)

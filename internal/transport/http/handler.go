@@ -53,7 +53,7 @@ func (h *Handler) SetupRoutes() {
 	h.Router.HandleFunc("/api/market/{id}", h.GetMarket).Methods("GET")
 	h.Router.HandleFunc("/api/market/{id}", h.DeleteMarket).Methods("DELETE")
 	h.Router.HandleFunc("/api/market/{id}", h.UpdateMarket).Methods("PUT")
-	h.Router.HandleFunc("/api/market/search", h.SearchMarket).Methods("GET")
+	h.Router.HandleFunc("/api/search/market", h.SearchMarket).Methods("GET")
 	h.Router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		if err := sendOkResponse(w, Response{Message: "Alive"}); err != nil {
 			panic(err)
@@ -86,15 +86,14 @@ func (h *Handler) GetMarket(w http.ResponseWriter, r *http.Request) {
 
 // GetAllMarkets Handler - retrieve all markets from the market service
 func (h *Handler) GetAllMarkets(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8" )
-	w.WriteHeader(http.StatusOK)
 
 	markets, err := h.Service.GetAllMarkets()
 	if err != nil {
 		sendErrorResponse(w, "Failed retrieving markets", err)
 		return
 	}
-	if err := json.NewEncoder(w).Encode(markets); err != nil {
+
+	if err := sendOkResponse(w, markets); err != nil {
 		panic(err)
 	}
 }
@@ -169,8 +168,17 @@ func (h *Handler) DeleteMarket(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) SearchMarket(w http.ResponseWriter, r *http.Request){
-	path := r.URL.Query()
+	q := r.URL.Query()
 
+	markets, err := h.Service.SearchMarkets(q)
+	if err != nil {
+		sendErrorResponse(w, "Search failed trying to retrieve markets", err)
+		return
+	}
+
+	if err := sendOkResponse(w, markets); err != nil {
+		panic(err)
+	}
 }
 
 func sendErrorResponse(w http.ResponseWriter, message string, err error) {

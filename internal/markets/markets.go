@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"net/url"
 	"time"
 )
 
@@ -46,6 +47,7 @@ type MarketService interface {
 	PostMarket(market Market) (Market, error)
 	UpdateMarket(newMarket Market) (Market, error)
 	DeleteMarket(ID int) error
+	SearchMarkets(opts struct{}) ([]Market, error)
 }
 
 // NewService - return a new market service
@@ -109,4 +111,16 @@ func (s *Service) GetAllMarkets() ([]Market, error) {
 	}
 	return markets, nil
 
+}
+
+// SearchMarkets - retrieves all marktes from database with the information provided
+func (s *Service) SearchMarkets(q url.Values) ([]Market, error){
+	var markets []Market
+	if r := s.DB.Where("distrito LIKE upper(?)", q.Get("distrito")).
+		Or("regiao5 LIKE INITCAP(?)", q.Get("regiao5")).
+		Or("nome_feira LIKE upper(?)", q.Get("nome_feira")).
+		Or("bairro LIKE upper(?)", q.Get("bairro")).Find(&markets); r.Error != nil {
+			return markets, r.Error
+	}
+	return markets, nil
 }

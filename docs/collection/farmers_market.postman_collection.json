@@ -145,6 +145,15 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Search Markets",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": null
+			},
+			"response": []
 		}
 	]
 }

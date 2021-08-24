@@ -42,9 +42,6 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 // SetupRoutes - setup up all routes for application
 func (h *Handler) SetupRoutes() {
-	/*
-		TODO: Add Search handler
-	*/
 	log.Info("Setting up Routes")
 	h.Router = mux.NewRouter()
 	h.Router.Use(LoggingMiddleware)

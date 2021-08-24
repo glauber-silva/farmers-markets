@@ -1,9 +1,5 @@
 package markets
 
-/*
-TODO: implement search by Distrito, Regiao5, NomeFeira e Bairro
-*/
-
 import (
 	"fmt"
 	"github.com/pkg/errors"
